@@ -22,3 +22,8 @@ See https://www.anfractuosity.com/projects/painting-a-christmas-tree/ for inform
 * sudo apt-get install python3-opencv
 
 * sudo apt-get install python3-numpy
+
+# Commercial alternatives
+
+* https://twinkly.com/ - seems to use a mobile phone for calibration, not sure what LEDs they use
+
