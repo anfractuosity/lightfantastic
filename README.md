@@ -11,6 +11,6 @@ Display patterns on randomly arranged WS2812B lighting strips
 
 * Install the following library https://github.com/jgarff/rpi_ws281x
 
-* Install OpenCV on the raspberry pi
+* sudo apt-get install python3-opencv
 
 * sudo apt-get install python3-numpy
