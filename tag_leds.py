@@ -9,6 +9,8 @@ import numpy as np
 import cv2
 import time
 import collections
+from collections.abc import Sequence
+from itertools import tee
 import copy
 from math import *
 from ids import *
@@ -31,9 +33,6 @@ else:
 
 ZERO_COLOUR = (0, 0, 255)
 ONE_COLOUR = (0, 255, 0)
-
-from collections.abc import Sequence
-
 
 class rect(object):
     def __init__(self, x1, y1, x2, y2):
@@ -76,32 +75,14 @@ class LED(Sequence):
 def blobDet(val, frame):
 
     lthres = 140
-
     ret, frame = cv2.threshold(frame, lthres, 255, 0)
-
-    # cv2.imshow("",frame)
-
     params = cv2.SimpleBlobDetector_Params()
-
-    # Change thresholds
     params.minThreshold = lthres
     params.maxThreshold = 255
-
-    # Filter by Area.
     params.filterByArea = False
-    # params.minArea = 1500
-
-    # Filter by Circularity
     params.filterByCircularity = False
-    # params.minCircularity = 0.1
-
-    # Filter by Convexity
     params.filterByConvexity = False
-    # params.minConvexity = 0.87
-
-    # Filter by Inertia
     params.filterByInertia = False
-    # params.minInertiaRatio = 0.01
     params.maxThreshold = 255
     params.filterByColor = True
     params.blobColor = 255
@@ -149,7 +130,6 @@ while True:
         continue
 
     timestamp = int(cap.get(cv2.CAP_PROP_POS_MSEC))
-    # print(timestamp)
 
     fcount = fcount + 1
     if fcount > FPS:
@@ -176,8 +156,6 @@ while True:
 
     z = blobDet(0, frame)
     newz = z
-
-    # print("BLOBS",len(newz))
 
     im = cv2.drawKeypoints(
         frame,
@@ -212,14 +190,11 @@ vall = {}
 added = 0
 allh = {}
 
-
 def getKey(item):
     return item[0]
 
-
 def additem(led):
     allh[led.idv] = led
-
 
 def nearesti(search, dist):
 
@@ -272,7 +247,6 @@ for i in allleds:
         if add == True:
             additem(ld)
 
-from itertools import tee
 
 
 def window(iterable, size):
@@ -285,13 +259,11 @@ def window(iterable, size):
 
 def binary(arr):
     m = 0
-
     s = 0
     for o in arr:
         s = s + (o * (2 ** m))
         m = m + 1
     return s
-
 
 def mancdec(arr):
     out = []
@@ -301,7 +273,6 @@ def mancdec(arr):
         elif arr[i : i + 2] == [1, 0]:
             out.append(1)
     return out
-
 
 def getbits(p2):
 
