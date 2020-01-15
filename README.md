@@ -27,6 +27,10 @@ See https://www.anfractuosity.com/projects/painting-a-christmas-tree/ for inform
 
 * Tidy code, mainly in tag_leds.py
 
+* Add webapp code, to paint the LEDs
+
+* Add code to display simple video on LEDs
+
 # Commercial alternatives
 
 * https://twinkly.com/ - seems to use a mobile phone for calibration, not sure what LEDs they use
