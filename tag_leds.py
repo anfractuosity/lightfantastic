@@ -9,14 +9,14 @@ import numpy as np
 import cv2
 import time
 import collections
-from collections.abc import Sequence
-from itertools import tee
 import copy
-from math import *
-from ids import *
 import math
 import time
 import pickle
+from collections.abc import Sequence
+from itertools import tee
+from math import *
+from ids import *
 
 WIDTH = 1280
 HEIGHT = 720
@@ -26,13 +26,10 @@ ONE_COLOUR = (0, 255, 0)
 
 old = -1
 frameno = 0
-seq = []
 allleds = []
 
 x = 10
 y = 10
-k = 10
-
 idcount = 0
 fps = 1
 fcount = 1
@@ -141,16 +138,15 @@ def getbits(p2):
             if nout <= 16:
                 bits.append(1)
             else:
-                bits.append(1)
-                bits.append(1)
+                bits.extend([1, 1])
 
             off = v
 
             if off <= 300:
                 bits.append(0)
             else:
-                bits.append(0)
-                bits.append(0)
+                bits.extend([0, 0])
+
             nout = 1
     return bits
 
@@ -321,6 +317,5 @@ pickle.dump(tups, open("save.p", "wb"))
 
 cv2.imshow("Tagged image", lastf)
 cv2.waitKey(0)
-
 cap.release()
 cv2.destroyAllWindows()
