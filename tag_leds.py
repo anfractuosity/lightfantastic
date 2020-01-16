@@ -13,6 +13,8 @@ import copy
 import math
 import time
 import pickle
+from operator import itemgetter
+from collections import defaultdict
 from collections.abc import Sequence
 from itertools import tee
 from math import *
@@ -83,9 +85,6 @@ def blobDet(val, frame):
     keypoints = detector.detect(frame)
     return keypoints
 
-def getKey(item):
-    return item[0]
-
 def additem(led):
     allh[led.idv] = led
 
@@ -100,7 +99,7 @@ def nearesti(search, dist):
         if dst < dist:
             found.append((dst, ldv))
 
-    return sorted(found, key=getKey)
+    return sorted(found, key=itemgetter(0))
 
 def window(iterable, size):
     iters = tee(iterable, size)
@@ -229,10 +228,7 @@ for i in allleds:
 
         add = True
         for allv in nearest:
-
-            if (
-                not allv[1].timestamp[-1] == i["timestamp"]
-            ):
+            if allv[1].timestamp[-1] != i["timestamp"]:
                 old = allv[1]
                 old.addtimestamp(i["timestamp"])
                 old.x = ld.x
@@ -265,7 +261,7 @@ for key in allh:
         marker = 0
         found = False
 
-        most = {}
+        most = defaultdict(int)
         for x in window(bits, 68):
             n2 = [z for z in x]
             pre = n2[:32]
@@ -276,10 +272,7 @@ for key in allh:
                 bbb = binary(m[16 : 16 + 10])
 
                 if crc(m[0 : 16 + 10]) == check:
-                    try:
-                        most[bbb] = most[bbb] + 1
-                    except KeyError:
-                        most[bbb] = 1
+                    most[bbb] = most[bbb] + 1
                     found = True
                     break
 
