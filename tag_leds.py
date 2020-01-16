@@ -21,18 +21,27 @@ import pickle
 WIDTH = 1280
 HEIGHT = 720
 FPS = 50
-RECORD = False
-
-if RECORD:
-    cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, WIDTH)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, HEIGHT)
-    cap.set(cv2.CAP_PROP_FPS, FPS)
-else:
-    cap = cv2.VideoCapture("lights.MOV")
-
 ZERO_COLOUR = (0, 0, 255)
 ONE_COLOUR = (0, 255, 0)
+old = -1
+f = 0
+fcount = 0
+counter = 0
+seq = []
+cc = 0
+allleds = []
+x = 10
+y = 10
+k = 10
+idcount = 0
+fps = 1
+fcount = 1
+lastf = None
+uid = 0
+vall = {}
+added = 0
+allh = {}
+frame = 0
 
 class rect(object):
     def __init__(self, x1, y1, x2, y2):
@@ -41,14 +50,11 @@ class rect(object):
         self.x2 = x2
         self.y2 = y2
 
-
 class LED(Sequence):
     def __init__(self, x, y, tim, idv):
-
         self.x = x
         self.y = y
         self.idv = idv
-
         self.timestamp = collections.deque(maxlen=100000)
         self.timestamp.append(tim)
 
@@ -59,7 +65,6 @@ class LED(Sequence):
         return 2
 
     def __eq__(self, other):
-
         if other == None:
             return False
 
@@ -71,9 +76,7 @@ class LED(Sequence):
     def addtimestamp(self, tstamp):
         self.timestamp.append(tstamp)
 
-
 def blobDet(val, frame):
-
     lthres = 140
     ret, frame = cv2.threshold(frame, lthres, 255, 0)
     params = cv2.SimpleBlobDetector_Params()
@@ -89,46 +92,85 @@ def blobDet(val, frame):
 
     detector = cv2.SimpleBlobDetector_create(params)
     keypoints = detector.detect(frame)
-
     return keypoints
 
+def getKey(item):
+    return item[0]
 
-old = -1
-f = 0
-fcount = 0
-counter = 0
-seq = []
-cc = 0
+def additem(led):
+    allh[led.idv] = led
 
-allleds = []
+def nearesti(search, dist):
+    found = []
 
-x = 10
-y = 10
-k = 10
-idcount = 0
-fps = 1
+    for idv in allh:
 
+        ldv = allh[idv]
+        dst = math.sqrt((search.x - ldv.x) ** 2 + (search.y - ldv.y) ** 2)
 
-if RECORD:
-    fourcc = cv2.VideoWriter_fourcc(*"XVID")
-    out = cv2.VideoWriter("output.avi", fourcc, float(FPS), (WIDTH, HEIGHT))
+        if dst < dist:
+            found.append((dst, ldv))
 
+    return sorted(found, key=getKey)
 
-fcount = 1
+def window(iterable, size):
+    iters = tee(iterable, size)
+    for i in range(1, size):
+        for each in iters[i:]:
+            next(each, None)
+    return zip(*iters)
 
-lastf = None
+def binary(arr):
+    m = 0
+    s = 0
+    for o in arr:
+        s = s + (o * (2 ** m))
+        m = m + 1
+    return s
+
+def mancdec(arr):
+    out = []
+    for i in range(0, len(arr), 2):
+        if arr[i : i + 2] == [0, 1]:
+            out.append(0)
+        elif arr[i : i + 2] == [1, 0]:
+            out.append(1)
+    return out
+
+def getbits(p2):
+
+    nout = 0
+    bits = []
+    for v in p2:
+
+        if v < 35:
+            nout = nout + 1
+        else:
+            if nout <= 16:
+                bits.append(1)
+            else:
+                bits.append(1)
+                bits.append(1)
+
+            off = v
+
+            if off <= 300:
+                bits.append(0)
+            else:
+                bits.append(0)
+                bits.append(0)
+            nout = 1
+    return bits
+
+def crc(val):
+    s = ""
+    for b in val:
+        s = s + str(b)
+    return binascii.crc32(s.encode("ascii")) % 256
+
+cap = cv2.VideoCapture("lights.MOV")
 
 while True:
-
-    if RECORD:
-        ret, frame = cap.read()
-        out.write(frame)
-        fcount = fcount + 1
-        if fcount == FPS * 60:
-            out.release()
-            break
-        continue
-
     timestamp = int(cap.get(cv2.CAP_PROP_POS_MSEC))
 
     fcount = fcount + 1
@@ -137,7 +179,6 @@ while True:
         if timestamp > old + 1000:
             if f > 1:
                 print("FPS ", f)
-
                 fps = f
                 f = 0
                 old = timestamp
@@ -179,39 +220,9 @@ while True:
 
         allleds.append({"timestamp": timestamp, "points": cur})
 
-
-if RECORD:
-    quit()
-
 print("Analysing")
-
-uid = 0
-vall = {}
-added = 0
-allh = {}
-
-def getKey(item):
-    return item[0]
-
-def additem(led):
-    allh[led.idv] = led
-
-def nearesti(search, dist):
-
-    found = []
-
-    for idv in allh:
-
-        ldv = allh[idv]
-        dst = math.sqrt((search.x - ldv.x) ** 2 + (search.y - ldv.y) ** 2)
-
-        if dst < dist:
-            found.append((dst, ldv))
-
-    return sorted(found, key=getKey)
-
-
 frame = 0
+
 for i in allleds:
     frame = frame + 1
 
@@ -233,10 +244,8 @@ for i in allleds:
 
             if (
                 not allv[1].timestamp[-1] == i["timestamp"]
-            ):  # and i["timestamp"] - allv[1].timestamp[-1] < 450 :
-
+            ):
                 old = allv[1]
-
                 old.addtimestamp(i["timestamp"])
                 old.x = ld.x
                 old.y = ld.y
@@ -247,82 +256,16 @@ for i in allleds:
         if add == True:
             additem(ld)
 
-
-
-def window(iterable, size):
-    iters = tee(iterable, size)
-    for i in range(1, size):
-        for each in iters[i:]:
-            next(each, None)
-    return zip(*iters)
-
-
-def binary(arr):
-    m = 0
-    s = 0
-    for o in arr:
-        s = s + (o * (2 ** m))
-        m = m + 1
-    return s
-
-def mancdec(arr):
-    out = []
-    for i in range(0, len(arr), 2):
-        if arr[i : i + 2] == [0, 1]:
-            out.append(0)
-        elif arr[i : i + 2] == [1, 0]:
-            out.append(1)
-    return out
-
-def getbits(p2):
-
-    nout = 0
-    bits = []
-    for v in p2:
-
-        if v < 35:
-            nout = nout + 1
-        else:
-            # on = nout *FPS
-            if nout <= 16:
-                bits.append(1)
-            else:
-                bits.append(1)
-                bits.append(1)
-
-            off = v
-
-            if off <= 300:
-                bits.append(0)
-            else:
-                bits.append(0)
-                bits.append(0)
-            nout = 1
-    return bits
-
-
 mp = IDs(0).manchester(IDs(0).preamble)
 tups = {}
-
-
-def crc(val):
-    s = ""
-    for b in val:
-        s = s + str(b)
-    return binascii.crc32(s.encode("ascii")) % 256
-
-
 idd = 0
-
 
 for key in allh:
     t = allh[key].timestamp
     led = allh[key]
 
     if len(t) > 20:
-
         t2 = [t[i] for i in range(1, len(t))]
-
         old = t2[0]
         out = []
 
@@ -330,13 +273,7 @@ for key in allh:
             out.append(v - old)
             old = v
 
-        print("key ", key)
-        print(out)
-
         bits = getbits(out)
-
-        print(bits)
-        print("---------------------")
         marker = 0
         found = False
 
@@ -351,20 +288,16 @@ for key in allh:
                 bbb = binary(m[16 : 16 + 10])
 
                 if crc(m[0 : 16 + 10]) == check:
-
                     try:
                         most[bbb] = most[bbb] + 1
                     except KeyError:
                         most[bbb] = 1
-
-                    print("woooo", binary(m[-10:]), " x: ", led.x, " y: ", led.y)
                     found = True
                     break
 
         last = 0
         idv = -1
         tup = (led.x, led.y)
-
         for k in most:
             if most[k] > last:
                 idv = k
@@ -374,10 +307,6 @@ for key in allh:
             tups[idv] = tup
 
         marker = marker + 1
-
-        if found:
-            print("--------------------------")
-
 
 ct = 0
 for k in tups:
