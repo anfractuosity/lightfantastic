@@ -183,11 +183,9 @@ while True:
         break
 
     z = blobDet(0, frame)
-    newz = z
-
     im = cv2.drawKeypoints(
         frame,
-        newz,
+        z,
         np.array([]),
         ZERO_COLOUR,
         cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
@@ -200,7 +198,7 @@ while True:
     cur = []
 
     if fps > 20:
-        for k in newz:
+        for k in z:
             x = k.pt[0]
             y = k.pt[1]
             cur.append((x, y, k.size))
