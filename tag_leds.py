@@ -23,32 +23,24 @@ HEIGHT = 720
 FPS = 50
 ZERO_COLOUR = (0, 0, 255)
 ONE_COLOUR = (0, 255, 0)
+
 old = -1
-f = 0
-fcount = 0
-counter = 0
+frameno = 0
 seq = []
-cc = 0
 allleds = []
+
 x = 10
 y = 10
 k = 10
+
 idcount = 0
 fps = 1
 fcount = 1
 lastf = None
 uid = 0
-vall = {}
-added = 0
+
 allh = {}
 frame = 0
-
-class rect(object):
-    def __init__(self, x1, y1, x2, y2):
-        self.x1 = x1
-        self.y1 = y1
-        self.x2 = x2
-        self.y2 = y2
 
 class LED(Sequence):
     def __init__(self, x, y, tim, idv):
@@ -175,12 +167,12 @@ while True:
 
     fcount = fcount + 1
     if fcount > FPS:
-        f = f + 1
+        frameno = frameno + 1
         if timestamp > old + 1000:
-            if f > 1:
-                print("FPS ", f)
-                fps = f
-                f = 0
+            if frameno > 1:
+                print("FPS ", frameno)
+                fps = frameno
+                frameno = 0
                 old = timestamp
 
     ret, frame = cap.read()
