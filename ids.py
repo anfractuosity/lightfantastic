@@ -5,7 +5,6 @@
 
 import binascii
 
-
 class IDs:
     def manchester(self, val):
         out = []
@@ -79,5 +78,3 @@ class IDs:
 
         check = self.crc(self.preamble + self.idbits)
         self.idbitsO = self.manchester(self.preamble + self.idbits + check)
-
-        print(len(self.idbitsO))
