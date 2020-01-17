@@ -19,12 +19,14 @@ from collections.abc import Sequence
 from itertools import tee
 from math import *
 from ids import *
+from spatial import *
 
 WIDTH = 1280
 HEIGHT = 720
 FPS = 50
 ZERO_COLOUR = (0, 0, 255)
 TIME_THRESHOLD = 300 # milliseconds
+BRUTE = False
 
 # LED representation
 class LED(Sequence):
@@ -50,6 +52,9 @@ class LED(Sequence):
 
         return self.x == other.x and self.y == other.y
 
+    def __hash__(self):
+        return self.idv
+
     def addtimestamp(self, tstamp):
         self.timestamp.append(tstamp)
 
@@ -70,14 +75,21 @@ def blobdetect(frame):
     return detector.detect(frame)
 
 # Find nearest potential LED
-def nearesti(allh,search, dist):
+def nearesti(allh,search, dist, spatial,rect):
+
     found = []
-    for idv in allh:
-        ldv = allh[idv]
-        dst = math.sqrt((search.x - ldv.x) ** 2 + (search.y - ldv.y) ** 2)
-        if dst < dist:
-            found.append((dst, ldv))
-    return sorted(found, key=itemgetter(0))
+    if BRUTE:
+        for idv in allh:
+            ldv = allh[idv]
+            dst = math.sqrt((search.x - ldv.x) ** 2 + (search.y - ldv.y) ** 2)
+            if dst < dist:
+                found.append((dst, ldv))
+        return sorted(found, key=itemgetter(0))
+    else:
+        for idv in spatial.potential_collisions(rect,search):
+            found.append((None,idv))
+            break
+        return found
 
 # Sliding window
 def window(iterable, size):
@@ -142,7 +154,7 @@ def crc(val):
 
 # Get blobs from video frames
 def getblobs(videofile):
-
+    spatial = SpatialHash()
     cap = cv2.VideoCapture(videofile)
     potentialleds = {}
     blobframes = []
@@ -188,23 +200,24 @@ def getblobs(videofile):
 
         cur = []
         if fps > 20:
+
             for k in blobs:
                 x = k.pt[0]
                 y = k.pt[1]
                 cur.append((x, y, k.size))
-
-            blobframes.append({"timestamp": timestamp, "points": cur})
 
             # Process blobs in current frame
             for l in cur:
 
                 uid = uid + 1
                 search_led = LED(l[0], l[1], timestamp, uid)
-                nearest = nearesti(potentialleds, search_led, 8)
+                rect = Rect(x1=l[0]-1,y1=l[1]-1,x2=l[0]+1,y2=l[1]+1)
+                nearest = nearesti(potentialleds, search_led, 8,spatial,rect)
 
                 # If no previous potential LED, add this LED to potential LEDs
                 if len(nearest) == 0:
                     potentialleds[search_led.idv] = search_led
+                    spatial.add_rect(rect,search_led)
                     continue
 
                 # If we found a potential previous LED, add this timestamp to it
@@ -221,6 +234,8 @@ def getblobs(videofile):
 
                 if add:
                     potentialleds[search_led.idv] = search_led
+                    spatial.add_rect(rect,search_led)
+
 
     return lastf, potentialleds
 
@@ -292,8 +307,8 @@ for led_id in tagged_leds:
     )
 
 print("found ", numleds)
-pickle.dump(tagged_leds, open("save.p", "wb"))
 
+pickle.dump(tagged_leds, open("save.p", "wb"))
 cv2.imshow("Tagged image", lastf)
 cv2.waitKey(0)
 cap.release()
