@@ -238,14 +238,8 @@ def getblobs(videofile):
     return lastf, potentialleds
 
 if __name__ == '__main__':
-
-    print("Analysing")
-
-    frame = 0
     mp = IDs(0).manchester(IDs(0).preamble)
     tagged_leds = {}
-    idd = 0
-
     lastf, potentialleds = getblobs("lights.MOV")
 
     for key in potentialleds:
@@ -307,7 +301,7 @@ if __name__ == '__main__':
             cv2.LINE_AA,
         )
 
-    print("found ", numleds)
+    print("Found ", numleds)
 
     pickle.dump(tagged_leds, open("save.p", "wb"))
     cv2.imshow("Tagged image", lastf)
