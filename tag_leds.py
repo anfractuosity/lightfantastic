@@ -21,8 +21,6 @@ from math import *
 from ids import *
 from spatial import *
 
-WIDTH = 1280
-HEIGHT = 720
 FPS = 50
 ZERO_COLOUR = (0, 0, 255)
 TIME_THRESHOLD = 300 # milliseconds
@@ -236,80 +234,82 @@ def getblobs(videofile):
                     potentialleds[search_led.idv] = search_led
                     spatial.add_rect(rect,search_led)
 
-
+    cap.release()
     return lastf, potentialleds
 
-print("Analysing")
-frame = 0
-mp = IDs(0).manchester(IDs(0).preamble)
-tagged_leds = {}
-idd = 0
+if __name__ == '__main__':
 
-lastf, potentialleds = getblobs("lights.MOV")
+    print("Analysing")
 
-for key in potentialleds:
-    t = potentialleds[key].timestamp
-    led = potentialleds[key]
+    frame = 0
+    mp = IDs(0).manchester(IDs(0).preamble)
+    tagged_leds = {}
+    idd = 0
 
-    if len(t) > 20:
-        t2 = [t[i] for i in range(1, len(t))]
-        old = t2[0]
-        out = []
+    lastf, potentialleds = getblobs("lights.MOV")
 
-        for v in t2[1:]:
-            out.append(v - old)
-            old = v
+    for key in potentialleds:
+        t = potentialleds[key].timestamp
+        led = potentialleds[key]
 
-        bits = getbits(out)
-        found = False
+        if len(t) > 20:
+            t2 = [t[i] for i in range(1, len(t))]
+            old = t2[0]
+            out = []
 
-        most = defaultdict(int)
-        for x in window(bits, 68):
-            n2 = [z for z in x]
-            pre = n2[:32]
+            for v in t2[1:]:
+                out.append(v - old)
+                old = v
 
-            if pre == mp:
-                m = mancdec(n2)
-                check = binary(m[-8:])
-                bbb = binary(m[16: 16 + 10])
+            bits = getbits(out)
+            found = False
 
-                if crc(m[0 : 16 + 10]) == check:
-                    most[bbb] = most[bbb] + 1
-                    found = True
-                    break
+            most = defaultdict(int)
+            for x in window(bits, 68):
+                n2 = [z for z in x]
+                pre = n2[:32]
 
-        last = 0
-        idv = -1
-        tup = (led.x, led.y)
-        for k in most:
-            if most[k] > last:
-                idv = k
-                last = most[k]
+                if pre == mp:
+                    m = mancdec(n2)
+                    check = binary(m[-8:])
+                    bbb = binary(m[16: 16 + 10])
 
-        if found:
-            tagged_leds[idv] = tup
+                    if crc(m[0: 16 + 10]) == check:
+                        most[bbb] = most[bbb] + 1
+                        found = True
+                        break
 
-# Display tagged LEDs on last processed video frame
-numleds = 0
-for led_id in tagged_leds:
-    numleds += 1
-    led_pos = tagged_leds[led_id]
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(
-        lastf,
-        str(led_id),
-        (int(led_pos[0]), int(led_pos[1])),
-        font,
-        0.3,
-        (0, 0, 255),
-        1,
-        cv2.LINE_AA,
-    )
+            last = 0
+            idv = -1
+            tup = (led.x, led.y)
+            for k in most:
+                if most[k] > last:
+                    idv = k
+                    last = most[k]
 
-print("found ", numleds)
+            if found:
+                tagged_leds[idv] = tup
 
-pickle.dump(tagged_leds, open("save.p", "wb"))
-cv2.imshow("Tagged image", lastf)
-cv2.waitKey(0)
-cap.release()
-cv2.destroyAllWindows()
+    # Display tagged LEDs on last processed video frame
+    numleds = 0
+    for led_id in tagged_leds:
+        numleds += 1
+        led_pos = tagged_leds[led_id]
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(
+            lastf,
+            str(led_id),
+            (int(led_pos[0]), int(led_pos[1])),
+            font,
+            0.3,
+            (0, 0, 255),
+            1,
+            cv2.LINE_AA,
+        )
+
+    print("found ", numleds)
+
+    pickle.dump(tagged_leds, open("save.p", "wb"))
+    cv2.imshow("Tagged image", lastf)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
