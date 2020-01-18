@@ -121,7 +121,7 @@ def getbits(framediffs):
 
     nout = 0
     bits = []
-    f = ((1 / FPS) * 2) * 1000
+    f = ((1 / FPS) * 1.5) * 1000
 
     for framediff in framediffs:
         if framediff < f:
