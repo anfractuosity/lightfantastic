@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="lightfantastic", # Replace with your own username
+    name="lightfantastic", 
     version="0.0.1",
     author="anfractuosity",
     description="Tag LEDs using a video",
