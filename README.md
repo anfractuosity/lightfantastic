@@ -5,8 +5,6 @@ Display patterns on randomly arranged WS2812B lighting strips
 * pulse_ids.py - This file is used to pulse out an ID bit pattern for each of your WS2812 LEDs.  You will need
                  to record a video of the LEDs.
 
-* tag_leds.py  - This file is used to process the calibration video and save the position of LEDs along with their ID to a pickled file.
-
 # How it works
 
 See https://www.anfractuosity.com/projects/tree-lighting/ for information on the calibration process and playing 
@@ -23,9 +21,15 @@ See https://www.anfractuosity.com/projects/painting-a-christmas-tree/ for inform
 
 * sudo apt-get install python3-numpy
 
-# To Do
+* pip3 install . --user 
 
-* Tidy code, mainly in tag_leds.py
+# Use
+
+To generate a pickled file containing the position of your LEDs, you can run:
+
+* lightfantastic --movie lights.MOV --out lights.p
+
+# To Do
 
 * Add webapp code, to paint the LEDs
 
