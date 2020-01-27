@@ -6,6 +6,9 @@
 import binascii
 
 class IDs:
+
+
+    # Manchester encode
     def manchester(self, val):
         out = []
 
@@ -18,6 +21,8 @@ class IDs:
                 out.append(0)
         return out
 
+
+    # Get which state to display
     def get(self):
         v = self.idbitsO[self.counter]
 
@@ -28,6 +33,8 @@ class IDs:
 
         return v
 
+
+    # Convert integer value to list, representing binary
     def bitlist(self, val):
 
         tmp = []
@@ -47,20 +54,27 @@ class IDs:
 
         return tmp
 
+
+    # Calculate a CRC and use 8 bits
     def crc(self, val):
+
         s = ""
         for b in val:
             s = s + str(b)
 
         return self.bitlist(binascii.crc32(s.encode("ascii")) % 256)
 
+    
+    # Initialise LED with preamble, ID, crc 
     def __init__(self, idv):
+
         self.idv = idv
         self.idbits = []
         self.idbitsO = []
         self.counter = 0
         self.preamble = [1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0]
 
+        # Use 10 bits for ID
         tmp = []
         if idv == 0:
             self.idbits.append(0)
