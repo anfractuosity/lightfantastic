@@ -27,9 +27,13 @@ See https://www.anfractuosity.com/projects/painting-a-christmas-tree/ for inform
 
 # Use
 
+To generate the calibration pattern on the LEDs:
+
+* lightfantastic-calibrate
+
 To generate a pickled file containing the position of your LEDs, you can run:
 
-* lightfantastic --movie lights.MOV --out lights.p
+* lightfantastic-process --movie lights.MOV --out lights.p
 
 # To Do
 
