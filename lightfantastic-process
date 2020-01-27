@@ -99,6 +99,7 @@ def window(iterable, size):
     return zip(*iters)
 
 
+# Convert list representing binary, to integer value
 def binary(arr):
     m = 0
     s = 0
@@ -196,7 +197,7 @@ def getblobs(videofile, brute):
             cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
         )
 
-        cv2.imshow("", im)
+        cv2.imshow("Video", im)
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
@@ -286,6 +287,7 @@ if __name__ == "__main__":
     tagged_leds = {}
     lastf, potentialleds, fps = getblobs(movie, brute)
 
+    # Find valid LEDs
     for key in potentialleds:
         t = potentialleds[key].timestamp
         led = potentialleds[key]
@@ -348,6 +350,6 @@ if __name__ == "__main__":
     print("Found ", numleds)
 
     pickle.dump(tagged_leds, open(args.out, "wb"))
-    cv2.imshow("Tagged image", lastf)
+    cv2.imshow("Video", lastf)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
