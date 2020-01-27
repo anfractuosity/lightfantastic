@@ -97,7 +97,7 @@ if __name__ == "__main__":
         dest="invert",
         nargs="?",
         default=False,
-        help="To invert the signal (when using NPN transistor level shift",
+        help="To invert the signal (when using NPN transistor level shift)",
     )
 
     args = parser.parse_args()
