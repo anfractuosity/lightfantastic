@@ -106,8 +106,8 @@ if __name__ == "__main__":
     for i in range(args.count):
         LEDs.append(IDs(i))
 
-    print("Will now attempt to pulse calibration pattern: %d LEDs, Pin: %d, Freq: %d Hz, DMA: %d, Invert: %r, Brightness: %d, Wait: %d ms"  
-                                               % (  args.count, args.pin, args.freq, args.dma, LED_INVERT, args.brightness, args.wait ))
+    print("Using: %d LEDs, Pin: %d, Freq: %d Hz, DMA: %d, Invert: %r, Brightness: %d, Wait: %d ms"  
+           % (  args.count, args.pin, args.freq, args.dma, LED_INVERT, args.brightness, args.wait ))
     
     # Create NeoPixel object with appropriate configuration.
     strip = Adafruit_NeoPixel(
