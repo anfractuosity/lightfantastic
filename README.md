@@ -2,8 +2,10 @@
 
 Display patterns on randomly arranged WS2812B lighting strips
 
-* pulse_ids.py - This file is used to pulse out an ID bit pattern for each of your WS2812 LEDs.  You will need
-                 to record a video of the LEDs.
+* lightfantastic-calibrate - This command is used to pulse out an ID bit pattern for each of your WS2812 LEDs.  You will need
+                 to record a video of these LEDs.
+
+* lightfantastic-process - This command is used to process the video of the LED's calibration pattern
 
 # How it works
 
