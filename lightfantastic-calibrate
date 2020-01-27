@@ -1,0 +1,123 @@
+#!/usr/bin/python3
+
+#
+# lightfantastic
+# https://github.com/anfractuosity/lightfantastic
+#
+
+import time
+import random
+import argparse
+from lightfantastic.ids import *
+from neopixel import *
+
+LEDs = []
+
+def tree(strip, wait_ms=100):
+
+    for i in range(strip.numPixels()):
+        v = LEDs[i].get()
+        if v == 0:
+            col = Color(0, 0, 0)
+        else:
+            col = Color(255, 255, 255)
+        strip.setPixelColor(i, col)
+
+    strip.show()
+    time.sleep(wait_ms / 1000.0)
+
+
+# Main program logic follows
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description="CLI for lightfantastic calibration lights")
+
+    parser.add_argument(
+        "--wait",
+        dest="wait",
+        nargs="?",
+        const=1,
+        type=int,
+        default=100,
+        help="Wait time in milliseconds",
+    )
+
+    parser.add_argument(
+        "--count",
+        dest="count",
+        nargs="?",
+        const=1,
+        type=int,
+        default=100,
+        help="Number of LEDs",
+    )
+
+    parser.add_argument(
+        "--pin",
+        dest="pin",
+        nargs="?",
+        const=1,
+        type=int,
+        default=18,
+        help="GPIO pin connected to the pixels",
+    )
+
+    parser.add_argument(
+        "--freq",
+        dest="freq",
+        nargs="?",
+        const=1,
+        type=int,
+        default=800000,
+        help="LED signal frequency in hertz, usually 800000",
+    )
+
+    parser.add_argument(
+        "--dma",
+        dest="dma",
+        nargs="?",
+        const=1,
+        type=int,
+        default=5,
+        help="DMA channel to use for generating signal",
+    )
+
+    parser.add_argument(
+        "--brightness",
+        dest="brightness",
+        nargs="?",
+        const=1,
+        type=int,
+        default=2,
+        help="Brightness of LEDs Set to 0 for darkest and 255 for brightest, a low value is recommended for calibration",
+    )
+
+    parser.add_argument(
+        "--invert",
+        dest="invert",
+        nargs="?",
+        default=False,
+        help="To invert the signal (when using NPN transistor level shift",
+    )
+
+    args = parser.parse_args()
+    LED_INVERT = not (args.invert == False)
+
+    for i in range(args.count):
+        LEDs.append(IDs(i))
+
+    print("Will now attempt to pulse calibration pattern: %d LEDs, Pin: %d, Freq: %d Hz, DMA: %d, Invert: %r, Brightness: %d, Wait: %d ms"  
+                                               % (  args.count, args.pin, args.freq, args.dma, LED_INVERT, args.brightness, args.wait ))
+    
+    # Create NeoPixel object with appropriate configuration.
+    strip = Adafruit_NeoPixel(
+        args.count, args.pin, args.freq, args.dma, LED_INVERT, args.brightness
+    )
+
+    # Intialize the library (must be called once before other functions).
+    strip.begin()
+
+    print("Press Ctrl-C to quit.")
+
+    while True:
+        tree(strip,args.wait)
